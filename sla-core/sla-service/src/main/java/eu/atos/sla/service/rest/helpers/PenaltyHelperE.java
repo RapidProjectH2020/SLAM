@@ -1,0 +1,76 @@
+/*******************************************************************************
+ * Copyright © 2018 Atos Spain SA. All rights reserved.
+ * This file is part of SLAM.
+ * SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * See LICENSE file for full license information in the project root.
+ *******************************************************************************/
+package eu.atos.sla.service.rest.helpers;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import eu.atos.sla.dao.IPenaltyDAO;
+import eu.atos.sla.dao.IPenaltyDAO.SearchParameters;
+import eu.atos.sla.datamodel.ICompensation.IPenalty;
+import eu.atos.sla.parser.data.Penalty;
+import eu.atos.sla.service.rest.helpers.exception.ParserHelperException;
+import eu.atos.sla.util.IModelConverter;
+
+/**
+ * Helper for Penalty Rest service.
+ * @author rsosa
+ */
+
+@Service
+@Transactional
+public class PenaltyHelperE {
+	private static Logger logger = LoggerFactory.getLogger(PenaltyHelperE.class);
+
+	@Autowired
+	public IPenaltyDAO penaltyDAO;
+	
+	@Autowired
+	private IModelConverter modelConverter;
+
+	public PenaltyHelperE() {
+	}
+
+	public Penalty getPenaltyByUuid(UUID uuid) {
+		logger.debug("StartOf getViolationByUUID uuid:"+uuid);
+		IPenalty storedPenalty = penaltyDAO.getByUuid(uuid.toString());
+		Penalty penalty = modelConverter.getPenaltyXML(storedPenalty);
+		logger.debug("EndOf getViolationByUUID");
+		return penalty;
+	}
+
+	public List<Penalty> getPenalties(String agreementId, String guaranteeTerm, Date begin, Date end)
+			throws ParserHelperException {
+		logger.debug(
+				"StartOf getPenaltiesByAgreementId agreementId:{} guaranteeTerm:{} begin:{}  end:{}", 
+				agreementId, guaranteeTerm, begin, end);
+		
+		List<Penalty> penalties = new ArrayList<Penalty>();
+		SearchParameters params = new SearchParameters();
+		params.setAgreementId(agreementId);
+		params.setGuaranteeTermName(guaranteeTerm);
+		params.setBegin(begin);
+		params.setEnd(end);
+		
+		List<IPenalty> storedPenalties = penaltyDAO.search(params);
+		
+		for (IPenalty storedPenalty : storedPenalties) {
+			penalties.add(modelConverter.getPenaltyXML(storedPenalty));
+		}
+		return penalties;
+	}
+	
+}

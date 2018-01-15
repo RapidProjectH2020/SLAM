@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright © 2018 Atos Spain SA. All rights reserved.
+    This file is part of SLAM.
+    SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
+    THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    See LICENSE file for full license information in the project root.
+ -->
+
+<!-- 
+From http://serviceqos.wikispaces.com/WSAgExample
+ -->
+<wsag:Template xmlns:wsag="http://www.ggf.org/namespaces/ws-agreement" xmlns:sla="http://sla.atos.eu" wsag:TemplateId="template01">
+   <wsag:Name>ExampleTemplate</wsag:Name>
+   <wsag:Context>
+      <wsag:AgreementInitiator>provider02</wsag:AgreementInitiator>
+      <wsag:ServiceProvider>provider01</wsag:ServiceProvider>
+      <wsag:ExpirationTime>2014-03-07T12:00:00+0100</wsag:ExpirationTime>
+	  <wsag:ServiceProvider>AgreementInitiator</wsag:ServiceProvider>		
+      <wsag:TemplateId>template01</wsag:TemplateId>
+	  <sla:Service xmlns:sla="http://sla.atos.eu">service3</sla:Service>	  
+   </wsag:Context>
+   <wsag:Terms>
+      <wsag:All>
+         <!-- functional description --> 
+         <wsag:ServiceDescriptionTerm
+            wsag:Name="General" 
+            wsag:ServiceName="Service0001">
+            A GPS service
+         </wsag:ServiceDescriptionTerm>
+         <wsag:ServiceDescriptionTerm
+            wsag:Name="GetCoordsOperation" 
+            wsag:ServiceName="GPSService0001">
+            operation to call to get the coords
+         </wsag:ServiceDescriptionTerm>
+         <!-- domain specific reference to a service (additional or optional to SDT) --> 
+         <wsag:ServiceReference 
+            wsag:Name="CoordsRequest" 
+            wsag:ServiceName="GPSService0001">
+        <wsag:EndpointReference>
+               <wsag:Address>http://www.gps.com/coordsservice/getcoords</wsag:Address>
+               <wsag:ServiceName>gps:CoordsRequest</wsag:ServiceName>
+            </wsag:EndpointReference>
+         </wsag:ServiceReference>
+         <!-- non-functional properties -->
+         <wsag:ServiceProperties
+            wsag:Name="AvailabilityProperties" 
+            wsag:ServiceName="GPS0001">
+            <wsag:Variables>
+               <wsag:Variable 
+                  wsag:Name="ResponseTime" 
+                  wsag:Metric="metric:Duration">
+                  <wsag:Location>qos:ResponseTime</wsag:Location>
+               </wsag:Variable>
+            </wsag:Variables>
+         </wsag:ServiceProperties>
+         <wsag:ServiceProperties
+            wsag:Name="UsabilityProperties" 
+            wsag:ServiceName="GPS0001">
+            <wsag:Variables>
+               <wsag:Variable 
+                  wsag:Name="CoordDerivation" 
+                  wsag:Metric="metric:CoordDerivationMetric">
+                  <wsag:Location>qos:CoordDerivation</wsag:Location>
+               </wsag:Variable>
+            </wsag:Variables>
+         </wsag:ServiceProperties>
+         <!-- statements to offered service level(s) -->
+         <wsag:GuaranteeTerm 
+            wsag:Name="FastReaction" wsag:Obligated="ServiceProvider">
+            <wsag:ServiceScope wsag:ServiceName="GPS0001">
+               http://www.gps.com/coordsservice/getcoords
+            </wsag:ServiceScope>
+            <wsag:QualifyingCondition>
+               applied when current time in week working hours
+            </wsag:QualifyingCondition>
+            <wsag:ServiceLevelObjective>
+               <wsag:KPITarget>
+                  <wsag:KPIName>FastResponseTime</wsag:KPIName>
+                  <wsag:Target>
+                     //Variable/@Name="ResponseTime" LOWERTHAN 1 second
+                  </wsag:Target>
+               </wsag:KPITarget>
+            </wsag:ServiceLevelObjective>
+         </wsag:GuaranteeTerm>
+      </wsag:All>
+   </wsag:Terms>
+</wsag:Template>

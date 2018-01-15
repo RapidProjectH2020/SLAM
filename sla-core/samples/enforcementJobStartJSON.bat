@@ -1,0 +1,1 @@
+curl -u user:password -H "Accept: application/json" -H "Content-type: application/json" -X PUT http://83.235.169.221:8088/sla-service/enforcements/%1/start

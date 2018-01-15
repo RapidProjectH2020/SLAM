@@ -1,0 +1,103 @@
+/*******************************************************************************
+ * Copyright © 2018 Atos Spain SA. All rights reserved.
+ * This file is part of SLAM.
+ * SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * See LICENSE file for full license information in the project root.
+ *******************************************************************************/
+package eu.atos.sla.evaluation.guarantee;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.atos.sla.datamodel.IAgreement;
+import eu.atos.sla.datamodel.IBusinessValueList;
+import eu.atos.sla.datamodel.ICompensation;
+import eu.atos.sla.datamodel.ICompensation.IPenalty;
+import eu.atos.sla.datamodel.ICompensationDefinition.CompensationKind;
+import eu.atos.sla.datamodel.ICompensationDefinition.IPenaltyDefinition;
+import eu.atos.sla.datamodel.IGuaranteeTerm;
+import eu.atos.sla.datamodel.IViolation;
+import eu.atos.sla.datamodel.bean.Penalty;
+
+/**
+ * BusinessValuesEvaluator that raises a penalty if the existent number of violations match the 
+ * count in the penalty definition and they occur in interval time defined in the penalty definition.
+ * 
+ * @author rsosa
+ */
+public class SimpleBusinessValuesEvaluator implements IBusinessValuesEvaluator {
+	private static Logger logger = LoggerFactory.getLogger(SimpleBusinessValuesEvaluator.class);
+	
+	private IViolationRepository repository;
+	
+	@Override
+	public List<? extends ICompensation> evaluate(
+			IAgreement agreement, IGuaranteeTerm term, List<IViolation> newViolations, Date now) {
+		
+		logger.debug("Evaluating business for {} new violations", newViolations.size());
+		List<ICompensation> result = new ArrayList<ICompensation>();
+		IBusinessValueList businessValues = term.getBusinessValueList();
+		if (businessValues == null) {
+			/*
+			 * sanity check
+			 */
+			return Collections.emptyList();
+		}
+		for (IPenaltyDefinition penaltyDef : businessValues.getPenalties()) {
+			if (penaltyDef.getKind() != CompensationKind.CUSTOM_PENALTY) {
+				continue;
+			}
+			Date violationsBegin = new Date(now.getTime() - penaltyDef.getTimeInterval().getTime());
+			/*
+			 * TODO: violationsBegin should be max(violationsBegin, select last(penalty) where penalty.definition = def
+			 */
+			List<IViolation> oldViolations = 
+					repository.getViolationsByTimeRange(agreement, term.getName(), violationsBegin, now);
+			
+			if (thereIsPenalty(penaltyDef, newViolations, oldViolations)) {
+				
+				IPenalty penalty = new Penalty(
+						agreement.getAgreementId(),
+						now,
+						term.getKpiName(),
+						penaltyDef, 
+						getLastViolation(newViolations, oldViolations));
+				result.add(penalty);
+				logger.debug("Raised {}", penalty);
+			}
+		}
+		return result;
+	}
+
+	private boolean thereIsPenalty(IPenaltyDefinition penaltyDef,
+			List<IViolation> newViolations, List<IViolation> oldViolations) {
+		return oldViolations.size() + newViolations.size() >= penaltyDef.getCount();
+	}
+	
+	private IViolation getLastViolation(List<IViolation> violations1, List<IViolation> violations2) {
+		
+		if (violations1.size() > 0) {
+			return violations1.get(violations1.size() - 1);
+		}
+		else if (violations2.size() > 0) {
+			return violations2.get(violations2.size() - 1);
+		}
+		else {
+			throw new IllegalStateException("Raising penalty with no violations");
+		}
+	}
+
+	public IViolationRepository getCompensationRepository() {
+		return repository;
+	}
+
+	public void setCompensationRepository(IViolationRepository repository) {
+		this.repository = repository;
+	}
+}

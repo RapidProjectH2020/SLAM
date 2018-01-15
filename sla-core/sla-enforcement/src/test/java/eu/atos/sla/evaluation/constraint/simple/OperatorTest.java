@@ -1,0 +1,84 @@
+/*******************************************************************************
+ * Copyright © 2018 Atos Spain SA. All rights reserved.
+ * This file is part of SLAM.
+ * SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * See LICENSE file for full license information in the project root.
+ *******************************************************************************/
+package eu.atos.sla.evaluation.constraint.simple;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+import eu.atos.sla.evaluation.constraint.simple.Operator;
+
+public class OperatorTest  {
+
+	/**
+	 * Calculates three comparisons to test an operator, where the operands are:
+	 * op1 = op2
+	 * op1 > op2
+	 * op1 < op2
+	 * 
+	 * @param operator Operator to test
+	 * @param assert1 the operator should return this for the first set of operands (i.e. if
+	 *   assert1 is true, the operator should be EQ, GE or LE)
+	 * @param assert2
+	 * @param assert3
+	 */
+	public void testOperator(Operator operator, boolean assert1, boolean assert2, boolean assert3) {
+		
+		double[] _0 = new double[] { 0 };
+		double[] _1 = new double[] { 1 };
+		
+		assertEquals(operator.eval(0, _0), assert1);
+		assertEquals(operator.eval(1, _0), assert2);
+		assertEquals(operator.eval(0, _1), assert3);
+	}
+	
+	@Test
+	public void testEval() {
+		
+		/*
+		 * Test simple operators
+		 */
+		testOperator(Operator.GT, false, true,  false);
+		testOperator(Operator.GE, true,  true,  false);
+		testOperator(Operator.EQ, true,  false, false);
+		testOperator(Operator.LT, false, false, true);
+		testOperator(Operator.LE, true,  false, true);
+		testOperator(Operator.NE, false, true,  true);
+		
+		double[] _0_1 = new double[] { 0d, 1d };
+
+		/*
+		 * Test between
+		 */
+		assertTrue(Operator.BETWEEN.eval(0, _0_1));
+		assertTrue(Operator.BETWEEN.eval(1, _0_1));
+		assertTrue(Operator.BETWEEN.eval(0.5, _0_1));
+		assertFalse(Operator.BETWEEN.eval(-0.1, _0_1));
+		assertFalse(Operator.BETWEEN.eval(1.1, _0_1));
+		
+		/*
+		 * Test in
+		 */
+		assertTrue(Operator.IN.eval(0, _0_1));
+		assertTrue(Operator.IN.eval(1, _0_1));
+		assertFalse(Operator.IN.eval(2, _0_1));
+		
+		/*
+		 * Tests exists (right operand is don't care)
+		 */
+		assertTrue(Operator.EXISTS.eval(0, new double[] {}));
+		
+		/*
+		 * Tests not exists (right operand is don't care)
+		 */
+		assertFalse(Operator.NOT_EXISTS.eval(0, new double[] {}));
+	}
+
+}
