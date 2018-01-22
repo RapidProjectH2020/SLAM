@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright © 2018 Atos Spain SA. All rights reserved.
+ * Copyright (c) 2018 Atos Spain SA. All rights reserved.
  * This file is part of SLAM.
  * SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * See LICENSE file for full license information in the project root.
  *******************************************************************************/
 package eu.rapid.socket.qos.sla;
@@ -32,7 +32,7 @@ public class SLAHandler {
 	private static final String SERVER_SLA_PORT = "serversla.port";
     //private static final String VMM_SERVER_IP = "vmm.server.ip";
     //private static final String VMM_SERVER_PORT = "vmm.server.port";
-	
+	public static String filename=null;
 	
 	public static void receivedRegisterRequest(long userID, int osType, String vmmIP, int vmmPort, int vcpuNum,
 			int memSize, int gpuCores, QoSItemList qosItemList, String vmIp) {
@@ -65,7 +65,7 @@ public class SLAHandler {
         //infoVm="ScopeNameContent";
         
         try {
-            String filename = CONFIG_PROPERTIES;
+        	if (filename==null) filename = CONFIG_PROPERTIES;
             input = MainSLAM.class.getClassLoader().getResourceAsStream(filename);
             if(input==null){
                 LOGGER.error("Sorry, unable to find " + filename);

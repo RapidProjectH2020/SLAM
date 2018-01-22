@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright © 2018 Atos Spain SA. All rights reserved.
+ * Copyright (c) 2018 Atos Spain SA. All rights reserved.
  * This file is part of SLAM.
  * SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * See LICENSE file for full license information in the project root.
  *******************************************************************************/
 package eu.atos.sla.core;
@@ -24,8 +24,8 @@ public class ThreadPoolServer implements Runnable {
 
     private final static Logger logger = Logger.getLogger(ThreadPoolServer.class);
 
-    private int serverPort;
-    private ServerSocket serverSocket = null;
+    protected int serverPort;
+    protected ServerSocket serverSocket = null;
 
     static List<String> vmmIPList = new ArrayList<>();
 
@@ -78,7 +78,7 @@ public class ThreadPoolServer implements Runnable {
         }
     }
 
-    private void openServerSocket() {
+    protected void openServerSocket() {
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
             logger.debug("Socket server started at port for listening at: " + this.serverPort);

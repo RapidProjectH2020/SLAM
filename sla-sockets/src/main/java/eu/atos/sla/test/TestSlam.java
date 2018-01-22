@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright © 2018 Atos Spain SA. All rights reserved.
+ * Copyright (c) 2018 Atos Spain SA. All rights reserved.
  * This file is part of SLAM.
  * SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * See LICENSE file for full license information in the project root.
  *******************************************************************************/
 package eu.atos.sla.test;
@@ -99,7 +99,8 @@ public class TestSlam {
             
 
             // ** Case 2 **                       
-            vmmOut.writeLong(56109);//userId
+            //vmmOut.writeLong(56109);//userId
+            vmmOut.writeLong(99999);//userId
             vmmOut.writeInt(1);//osType  0=Linux
             //vmmOut.writeUTF("127.0.0.1");//ip
             //vmmOut.writeInt(9002);//port
@@ -113,6 +114,8 @@ public class TestSlam {
             vmmOut.flush();          
             
             // Receive message format: status (java byte), vmcpuList (java object)
+            InputStream is = vmmSocket.getInputStream();
+            System.out.println("is.toString() :[" + is.toString()+"]");
 
             ObjectInputStream vmmIn = new ObjectInputStream(vmmSocket.getInputStream());
             byte status = vmmIn.readByte();

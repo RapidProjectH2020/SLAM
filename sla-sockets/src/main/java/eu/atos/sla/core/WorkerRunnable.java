@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright © 2018 Atos Spain SA. All rights reserved.
+ * Copyright (c) 2018 Atos Spain SA. All rights reserved.
  * This file is part of SLAM.
  * SLAM is free software: you can redistribute it and/or modify it under the terms of Apache 2.0
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * See LICENSE file for full license information in the project root.
  *******************************************************************************/
 package eu.atos.sla.core;
@@ -85,9 +85,10 @@ public class WorkerRunnable implements Runnable {
 
     private void acRegisterSlam(ObjectOutputStream out, ObjectInputStream in, long threadId) throws IOException {
         logger.debug("Thread Id: " + threadId + " | AC_REGISTER_SLAM()");
+        long userID = 0;
         try {
             //Thread.sleep(2000);
-            long userID = in.readLong();
+            userID = in.readLong();
             int osType = in.readInt();
             String vmmIP = in.readUTF();
             int vmmPort = in.readInt();
@@ -139,6 +140,8 @@ public class WorkerRunnable implements Runnable {
     		
     		
     		// 2. Solicito la creacion del Agreement
+            if(userID==1234567890) SLAHandler.filename="configtest.properties";
+            
             SLAHandler.receivedRegisterRequest(userID, osType, vmmIP, vmmPort, vcpuNum, memSize, gpuCores, qosItemList, vmIp);
             
             logger.debug("[Flow] User id: " + userID + "vmmPort: " + vmmPort +
@@ -164,7 +167,7 @@ public class WorkerRunnable implements Runnable {
             
             logger.debug("[Flow] Thread Id: " + threadId + " | Finished processing AC_REGISTER_SLAM()");
         } catch (Exception e) {
-            logger.error("[Flow] socket worker runnable Exception", e);
+            logger.error("[Flow-"+userID+"] VMM not respond. socket worker runnable Exception", e);
         }
         out.flush();
     }
@@ -173,13 +176,16 @@ public class WorkerRunnable implements Runnable {
                                   int vcpuNum, int memSize, int gpuCores
     ) throws IOException {
         logger.debug("slamStartVmVmm() start userID: " + userID + " osType: " + osType);
-        logger.debug("Calling VMM manager socket server running at: " + vmmIp + ":" + Integer.toString(vmmPort));
-        Socket vmmSocket = new Socket(vmmIp, vmmPort);
+        logger.debug("[Flow-"+userID+"] Calling VMM manager socket server running at: " + vmmIp + ":" + Integer.toString(vmmPort));
+        
+        String ip=null;
 
+        Socket vmmSocket = new Socket(vmmIp, vmmPort);
+        vmmSocket.setSoTimeout(120000);
         ObjectOutputStream vmmOut = new ObjectOutputStream(vmmSocket.getOutputStream());
         vmmOut.flush();
         ObjectInputStream vmmIn = new ObjectInputStream(vmmSocket.getInputStream());
-
+        
         logger.debug("[Flow-"+userID+"] RapidMessages.SLAM_START_VM_VMM params: userID="+userID+", osType="+osType+", vcpuNum="+vcpuNum+", memSize="+memSize+", gpuCores="+gpuCores); 
         vmmOut.writeByte(RapidMessages.SLAM_START_VM_VMM);
         vmmOut.writeLong(userID); // userId
@@ -193,7 +199,7 @@ public class WorkerRunnable implements Runnable {
         logger.debug("[Flow-"+userID+"] RapidMessages.SLAM_START_VM_VMM status: " + status); 
         logger.debug("Return Status: " + (status == RapidMessages.OK ? "OK" : "ERROR"));
 
-        String ip;
+
         if (status == RapidMessages.OK) {
             long user_id = vmmIn.readLong();//not used
             ip = vmmIn.readUTF();
@@ -208,6 +214,12 @@ public class WorkerRunnable implements Runnable {
         vmmIn.close();
         vmmSocket.close();
         logger.debug("SlamStartVmVmm() end");
+        
+        
         return ip;
+      
+      
+        
+        
     }
 }

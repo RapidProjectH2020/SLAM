@@ -5,22 +5,23 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * See LICENSE file for full license information in the project root.
  *******************************************************************************/
-package eu.rapid.socket.qos.beans;
+package eu.atos.sla.core;
 
-import java.util.List;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 
-public class QoSItemList {
-	 @JsonProperty(value = "QoS")
-	 private List<QoSItem> qosList;
+public class ThreadPoolServerTest {
 
-	public List<QoSItem> getQoSList() {
-		return qosList;
-	}
-
-	public void setQoSList(List<QoSItem> qosList) {
-		this.qosList = qosList;
+	
+	@Test
+	public void testThreadPoolServer() {
+	    ThreadPoolServer server = new ThreadPoolServer(9991, 2, "83.235.169.221", 6666);
+	    assert server != null;	
 	}
 
 
